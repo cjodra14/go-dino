@@ -57,8 +57,8 @@ func main() {
 		window := gocv.NewWindow("Result")
 		defer window.Close()
 		window.IMShow(imgMat)
-		if window.WaitKey(1) == 81 {
-			return
+		if window.WaitKey(1) == 113 {
+			break
 		}
 
 		fmt.Println(isWhiteDino)
