@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"go-dino/models"
 	"go-dino/utils"
+	"image/color"
 
 	"github.com/sirupsen/logrus"
+	"gocv.io/x/gocv"
 )
 
 func main() {
@@ -50,6 +52,15 @@ func main() {
 		}
 
 		isWhiteDino := dinoWhite.FindObject(imgMat)
+
+		gocv.Rectangle(&imgMat, dinoWhite.Location, color.RGBA{G: 255}, 2)
+		window := gocv.NewWindow("Result")
+		defer window.Close()
+		window.IMShow(imgMat)
+		if window.WaitKey(1) == 81 {
+			return
+		}
+
 		fmt.Println(isWhiteDino)
 		fmt.Println(dinoWhite.Location)
 

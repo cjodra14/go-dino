@@ -39,11 +39,7 @@ func (object *Object) FindObject(img gocv.Mat) bool {
 	fmt.Printf("Best match found at: %v\n", maxLoc)
 
 	location := image.Rect(maxLoc.X, maxLoc.Y, maxLoc.X+object.Image.Cols(), maxLoc.Y+object.Image.Rows())
-	// gocv.Rectangle(&img, location, color.RGBA{G: 255}, 2)
-	// window := gocv.NewWindow("Result")
-	// defer window.Close()
-	// window.IMShow(img)
-	// window.WaitKey(0)
+	
 	if maxVal > 0.8 {
 		object.Location = location
 		return true
