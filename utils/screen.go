@@ -7,7 +7,7 @@ import (
 )
 
 func GetDinoBoardScreen() (*image.RGBA, error) {
-	bounds := image.Rect(700, 100, 1300, 300)
+	bounds := image.Rect(700, 150, 1300, 300)
 
 	img, err := screenshot.CaptureRect(bounds)
 	if err != nil {
