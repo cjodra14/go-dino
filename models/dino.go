@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"image"
 
 	"gocv.io/x/gocv"
@@ -36,10 +35,9 @@ func (object *Object) FindObject(img gocv.Mat) bool {
 	gocv.MatchTemplate(img, object.Image, &result, method, gocv.NewMat())
 
 	_, maxVal, _, maxLoc := gocv.MinMaxLoc(result)
-	fmt.Printf("Best match found at: %v\n", maxLoc)
 
 	location := image.Rect(maxLoc.X, maxLoc.Y, maxLoc.X+object.Image.Cols(), maxLoc.Y+object.Image.Rows())
-	
+
 	if maxVal > 0.8 {
 		object.Location = location
 		return true

@@ -6,13 +6,18 @@ import (
 	"go-dino/utils"
 	"image/color"
 
+	// "time"
+
+	"github.com/go-vgo/robotgo"
 	"github.com/sirupsen/logrus"
+
 	"gocv.io/x/gocv"
 )
 
 func main() {
 	playerIndex := 0
 	enemyIndex := 0
+	color := color.RGBA{}
 	dinoWhite := models.NewObject("./objects/dino.png", false)
 	dinoBlack := models.NewObject("./objects/dino_b.png", true)
 	dinos := []models.Object{
@@ -40,7 +45,16 @@ func main() {
 
 	fmt.Println(playerIndex, " -- ", enemyIndex)
 
-	for i := 0; i < 1000000; i++ {
+	// ticker := time.NewTicker(1 * time.Second) // Create a new ticker that ticks every 2 seconds
+
+	// go func() { // Start a new Goroutine
+	// 	for range ticker.C { // Loop indefinitely
+	// 		Jump() // Call the Jump function
+	// 	}
+	// }()
+
+	for {
+
 		screen, err := utils.GetDinoBoardScreen()
 		if err != nil {
 			logrus.Error(err)
@@ -51,19 +65,41 @@ func main() {
 			logrus.Error(err)
 		}
 
-		isWhiteDino := dinoWhite.FindObject(imgMat)
+		isWhiteDino := dinos[0].FindObject(imgMat)
+		isBlackDino := dinos[1].FindObject(imgMat)
 
-		gocv.Rectangle(&imgMat, dinoWhite.Location, color.RGBA{G: 255}, 2)
-		window := gocv.NewWindow("Result")
-		defer window.Close()
-		window.IMShow(imgMat)
-		if window.WaitKey(1) == 113 {
-			break
+		if isWhiteDino {
+			playerIndex = 0
+			color.B = 0
+			color.R = 0
+			color.G = 0
 		}
 
-		fmt.Println(isWhiteDino)
-		fmt.Println(dinoWhite.Location)
+		if isBlackDino {
+			playerIndex = 1
+			color.B = 255
+			color.R = 255
+			color.G = 255
+		}
 
+		gocv.Rectangle(&imgMat, dinos[playerIndex].Location, color, 2)
+		window := gocv.NewWindow("Result")
+
+		defer window.Close()
+
+		window.IMShow(imgMat)
+
+		if window.WaitKey(1) == 113 {
+			logrus.Fatal("program exited")
+		}
+
+		fmt.Println("index", playerIndex)
+		fmt.Println("is white", isWhiteDino)
+		fmt.Println("is black", isBlackDino)
 	}
 
+}
+
+func Jump() {
+	robotgo.KeyTap("space")
 }
