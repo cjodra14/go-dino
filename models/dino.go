@@ -7,21 +7,22 @@ import (
 )
 
 type Object struct {
-	Width     int
-	Height    int
-	Image     gocv.Mat
-	DarkTheme bool
-	Location  image.Rectangle
+	Name     string
+	Width    int
+	Height   int
+	Image    gocv.Mat
+	IsFound  bool
+	Location image.Rectangle
 }
 
-func NewObject(imgPath string, isDarkTheme bool) *Object {
+func NewObject(imgPath, name string) *Object {
 	img := gocv.IMRead(imgPath, gocv.IMReadGrayScale)
 
 	return &Object{
-		Image:     img,
-		Height:    img.Size()[0],
-		Width:     img.Size()[1],
-		DarkTheme: isDarkTheme,
+		Name:   name,
+		Image:  img,
+		Height: img.Size()[0],
+		Width:  img.Size()[1],
 	}
 }
 
@@ -40,8 +41,11 @@ func (object *Object) FindObject(img gocv.Mat) bool {
 
 	if maxVal > 0.8 {
 		object.Location = location
+		object.IsFound = true
 		return true
 	}
+
+	object.IsFound = false
 
 	return false
 

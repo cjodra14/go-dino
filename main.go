@@ -5,6 +5,7 @@ import (
 	"go-dino/models"
 	"go-dino/utils"
 	"image/color"
+	"time"
 
 	// "time"
 
@@ -18,20 +19,20 @@ func main() {
 	playerIndex := 0
 	enemyIndex := 0
 	color := color.RGBA{}
-	dinoWhite := models.NewObject("./objects/dino.png", false)
-	dinoBlack := models.NewObject("./objects/dino_b.png", true)
+	dinoWhite := models.NewObject("./objects/dino.png", "White Dino")
+	dinoBlack := models.NewObject("./objects/dino_b.png", "Black Dino")
 	dinos := []models.Object{
 		*dinoWhite,
 		*dinoBlack,
 	}
 	fmt.Println(dinos)
 
-	bird := models.NewObject("./objects/bird.png", false)
-	birdBlack := models.NewObject("./objects/bird_b.png", true)
-	cactus1 := models.NewObject("./objects/cact1.png", false)
-	cactus1Black := models.NewObject("./objects/cact1_b.png", true)
-	cactus2 := models.NewObject("./objects/cact2.png", false)
-	cactus2Black := models.NewObject("./objects/cact2_b.png", true)
+	bird := models.NewObject("./objects/bird.png", "Bird")
+	birdBlack := models.NewObject("./objects/bird_b.png", "Black bird")
+	cactus1 := models.NewObject("./objects/cact1.png", "cactus 1")
+	cactus1Black := models.NewObject("./objects/cact1_b.png", "cactus 1 black")
+	cactus2 := models.NewObject("./objects/cact2.png", "cactus 2")
+	cactus2Black := models.NewObject("./objects/cact2_b.png", "cactus 2 black")
 
 	enemies := []models.Object{
 		*bird,
@@ -65,24 +66,24 @@ func main() {
 			logrus.Error(err)
 		}
 
-		isWhiteDino := dinos[0].FindObject(imgMat)
-		isBlackDino := dinos[1].FindObject(imgMat)
-
-		if isWhiteDino {
-			playerIndex = 0
-			color.B = 0
-			color.R = 0
-			color.G = 0
+		for i, dino := range dinos {
+			dino.FindObject(imgMat)
+			if dino.IsFound {
+				playerIndex = i
+				setColor(playerIndex, &color)
+				gocv.Rectangle(&imgMat, dino.Location, color, 5)
+				fmt.Println(dino.Name, " at  ", dino.Location)
+			}
 		}
 
-		if isBlackDino {
-			playerIndex = 1
-			color.B = 255
-			color.R = 255
-			color.G = 255
+		for _, enemy := range enemies {
+			enemy.FindObject(imgMat)
+			if enemy.IsFound {
+				fmt.Println(enemy.Name, " at  ", enemy.Location)
+				gocv.Rectangle(&imgMat, enemy.Location, color, 2)
+			}
 		}
 
-		gocv.Rectangle(&imgMat, dinos[playerIndex].Location, color, 2)
 		window := gocv.NewWindow("Result")
 
 		defer window.Close()
@@ -94,10 +95,23 @@ func main() {
 		}
 
 		fmt.Println("index", playerIndex)
-		fmt.Println("is white", isWhiteDino)
-		fmt.Println("is black", isBlackDino)
+		time.Sleep(time.Millisecond * 10)
 	}
 
+}
+
+func setColor(playerIndex int, color *color.RGBA) {
+	if playerIndex == 0 {
+		color.B = 0
+		color.R = 0
+		color.G = 0
+	}
+
+	if playerIndex == 1 {
+		color.B = 255
+		color.R = 255
+		color.G = 255
+	}
 }
 
 func Jump() {
