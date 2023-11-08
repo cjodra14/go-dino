@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go-dino/models"
 	"go-dino/utils"
+	"image"
 	"image/color"
 	"time"
 
@@ -17,7 +18,14 @@ import (
 
 func main() {
 	playerIndex := 0
-	enemyIndex := 0
+
+	distanceThreshold := 100
+
+	startTime := time.Now()
+	prevTime := time.Now()
+	speedRate := 1.5
+
+	// enemyIndex := 0
 	color := color.RGBA{}
 	dinoWhite := models.NewObject("./objects/dino.png", "White Dino")
 	dinoBlack := models.NewObject("./objects/dino_b.png", "Black Dino")
@@ -42,19 +50,14 @@ func main() {
 		*cactus2,
 		*cactus2Black,
 	}
-	fmt.Println(enemies)
-
-	fmt.Println(playerIndex, " -- ", enemyIndex)
-
-	// ticker := time.NewTicker(1 * time.Second) // Create a new ticker that ticks every 2 seconds
-
-	// go func() { // Start a new Goroutine
-	// 	for range ticker.C { // Loop indefinitely
-	// 		Jump() // Call the Jump function
-	// 	}
-	// }()
 
 	for {
+
+		if time.Now().Sub(prevTime) > 1 {
+			if time.Now().Sub(startTime) < 180 && (dinos[playerIndex].Location != image.Rectangle{}) {
+				distanceThreshold += int(speedRate)
+			}
+		}
 
 		screen, err := utils.GetDinoBoardScreen()
 		if err != nil {
@@ -72,19 +75,25 @@ func main() {
 				playerIndex = i
 				setColor(playerIndex, &color)
 				gocv.Rectangle(&imgMat, dino.Location, color, 5)
-				fmt.Println(dino.Name, " at  ", dino.Location)
 			}
 		}
 
 		for _, enemy := range enemies {
 			enemy.FindObject(imgMat)
 			if enemy.IsFound {
-				fmt.Println(enemy.Name, " at  ", enemy.Location)
 				gocv.Rectangle(&imgMat, enemy.Location, color, 2)
+				horizontalDistance := enemy.Location.Min.X - dinos[playerIndex].Location.Max.X
+				verticalDistance := enemy.Location.Min.Y - dinos[playerIndex].Location.Max.Y
+
+				if horizontalDistance < distanceThreshold && horizontalDistance>60 && (verticalDistance > 110)  {
+					// fmt.Println(horizontalDistance)
+					fmt.Println(verticalDistance)
+					go Jump()
+				}
 			}
 		}
 
-		window := gocv.NewWindow("Result")
+		window := gocv.NewWindow("go-dino")
 
 		defer window.Close()
 
@@ -93,8 +102,6 @@ func main() {
 		if window.WaitKey(1) == 113 {
 			logrus.Fatal("program exited")
 		}
-
-		fmt.Println("index", playerIndex)
 		time.Sleep(time.Millisecond * 10)
 	}
 
